@@ -6,8 +6,6 @@
 //  Copyright © 2015 Foursquare. All rights reserved.
 //
 
-#import <UIKit/UIKit.h>
-
 #import "FSQUrlRouter.h"
 #import "FSQRouteContent.h"
 #import "FSQRouteContentGenerator.h"
