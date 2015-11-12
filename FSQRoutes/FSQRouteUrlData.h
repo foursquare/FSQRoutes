@@ -11,9 +11,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FSQRouteUrlData : NSObject
-@property (nonatomic, nullable) NSURL *url;
-@property (nonatomic, nullable) NSDictionary<NSString *, NSString *>*parameters;
-@property (nonatomic, nullable) NSDictionary *notificationUserInfo;
+@property (nonatomic, strong, nullable) NSURL *url;
+@property (nonatomic, strong, nullable) NSDictionary<NSString *, NSString *>*parameters;
+@property (nonatomic, strong, nullable) NSDictionary *notificationUserInfo;
 @end
 
 NS_ASSUME_NONNULL_END

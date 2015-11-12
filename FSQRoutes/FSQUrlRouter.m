@@ -627,6 +627,8 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
         urlData.url = url;
         
         if (routeMap.count > 0) {
+            __block BOOL foundMatch = NO;
+            
             [routeMap enumerateObjectsUsingBlock:^(NSArray *pair, NSUInteger idx, BOOL *stop) {
                 NSArray<FSQRouteUrlToken *> *tokenizedPath = [pair firstObject];
                 FSQRouteContentGenerator *contentGenerator = [pair lastObject];
@@ -643,10 +645,15 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
                     *stop = YES;
                     urlData.parameters = parameters;
 
+                    foundMatch = YES;
                     completionBlock(YES, isNativeScheme, contentGenerator, urlData);
                 }
-                
             }];
+            
+            if (!foundMatch) {
+                // Need to ensure completion block is called
+                completionBlock(NO, isNativeScheme, nil, urlData);
+            }
         }
         else {
             completionBlock(NO, isNativeScheme, nil, urlData);
@@ -680,6 +687,23 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
                    [self.delegate urlRouter:self failedToRouteUrl:url notificationUserInfo:notificationUserInfo];
                }
            }];
+}
+
+- (void)routeUrl:(NSURL *)url notificationUserInfo:(nullable NSDictionary *)notificationUserInfo usingGenerator:(FSQRouteContentGenerator *)generator {
+    FSQRouteUrlData *urlData = [FSQRouteUrlData new];
+    urlData.url = url;
+    urlData.notificationUserInfo = notificationUserInfo;
+    
+    NSMutableDictionary *mutableParameters = [NSMutableDictionary new];
+    NSURLComponents *urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:YES];
+    
+    for (NSURLQueryItem *item in urlComponents.queryItems) {
+        mutableParameters[item.name] = item.value;
+    }
+    
+    urlData.parameters = mutableParameters.copy;
+    
+    [self routeOrDeferContentGenerator:generator urlData:urlData];
 }
 
 - (void)routeOrDeferContentGenerator:(FSQRouteContentGenerator *)contentGenerator urlData:(FSQRouteUrlData *)urlData {
