@@ -77,13 +77,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Presentation -
 
-- (void)present {
-    [self presentWithPresentation:self.defaultPresentation];
-}
-
-- (void)presentWithPresentation:(FSQRoutePresentation)presentation {
-    [self presentFromViewController:[self topmostViewController] 
-                   withPresentation:presentation];
+- (void)presentFromViewController:(UIViewController *)presentingViewController {
+    [self presentFromViewController:presentingViewController 
+                   withPresentation:self.defaultPresentation];
 }
 
 - (void)presentFromViewController:(UIViewController *)presentingViewController 
@@ -102,34 +98,6 @@ NS_ASSUME_NONNULL_BEGIN
             presentation(viewController, presentingViewController, self.urlData);
         }
     }
-}
-
-- (UIViewController *)topmostViewController {
-    UIViewController *rootViewController = [UIApplication sharedApplication].keyWindow.rootViewController;
-    
-    UIViewController *newVC = rootViewController;
-    UIViewController *oldVC;
-    
-    while (YES) {
-        do {
-            oldVC = newVC;
-            if ([newVC isKindOfClass:[UITabBarController class]]) {
-                newVC = [(UITabBarController *)newVC selectedViewController];
-            }
-            else if ([newVC isKindOfClass:[UINavigationController class]]) {
-                newVC = [(UINavigationController *)newVC topViewController];
-            }
-        } while (newVC != oldVC);
-        
-        if (newVC.presentedViewController != nil) {
-            newVC = newVC.presentedViewController;
-        }
-        else {
-            break;
-        }
-    }
-
-    return newVC;
 }
 
 @end

@@ -37,9 +37,8 @@ typedef void (^FSQRouteContentBlock)(UIViewController *pushingController,
 
 - (instancetype)initWithBlock:(FSQRouteContentBlock)routesBlock;
 
-- (void)present;
-- (void)presentWithPresentation:(FSQRoutePresentation)presentation;
-- (void)presentFromViewController:(UIViewController *)presentingViewController 
+- (void)presentFromViewController:(UIViewController *)presentingViewController;
+- (void)presentFromViewController:(UIViewController *)presentingViewController
                  withPresentation:(FSQRoutePresentation)presentation;
 
 @end

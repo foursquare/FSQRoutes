@@ -144,6 +144,8 @@ typedef NS_ENUM(NSInteger, FSQUrlRoutingControl) {
 - (FSQUrlRoutingControl)urlRouter:(FSQUrlRouter *)urlRouter 
                shouldPresentRoute:(FSQRouteContent *)routeContent;
 
+- (UIViewController *)urlRouter:(FSQUrlRouter *)urlRouter viewControllerToPresentRoutedUrlFrom:(FSQRouteContent *)routeContent;
+
 - (void)urlRouter:(FSQUrlRouter *)urlRouter routedUrlWillBePresented:(FSQRouteContent *)routeContent;
 - (void)urlRouter:(FSQUrlRouter *)urlRouter routedUrlDidGetPresented:(FSQRouteContent *)routeContent;
 

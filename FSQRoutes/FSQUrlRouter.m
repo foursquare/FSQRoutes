@@ -753,9 +753,14 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
     
     switch (routingControl) {
         case FSQUrlRouterAllowRouting: {
-            [self.delegate urlRouter:self routedUrlWillBePresented:routeContent];
-            [routeContent present];
-            [self.delegate urlRouter:self routedUrlDidGetPresented:routeContent];
+            UIViewController *viewController = [self.delegate urlRouter:self viewControllerToPresentRoutedUrlFrom:routeContent];
+
+            if (viewController != nil) {
+                [self.delegate urlRouter:self routedUrlWillBePresented:routeContent];
+                [routeContent presentFromViewController:viewController];
+                [self.delegate urlRouter:self routedUrlDidGetPresented:routeContent];
+            }
+
         }
             break;
         case FSQUrlRouterCancelRouting: {
