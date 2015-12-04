@@ -41,6 +41,18 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
 
 @implementation FSQUrlRouter
 
+- (instancetype)init NS_UNAVAILABLE {
+    @throw ([NSException exceptionWithName:NSGenericException reason:@"FSQUrlRouter requires a delegate" userInfo:nil]);
+}
+
+- (instancetype)initWithDelegate:(id<FSQUrlRouterDelegate>)delegate {
+    self = [super init];
+    if (self) {
+        self.delegate = delegate;
+    }
+    return self;
+}
+
 #pragma mark - Registering Route Maps -
 
 - (void)registerNativeSchemes:(NSArray<NSString *> *)schemes 

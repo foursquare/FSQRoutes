@@ -21,6 +21,8 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, weak, nullable) id<FSQUrlRouterDelegate> delegate;
 @property (nonatomic, copy, nullable) FSQRoutePresentation defaultRoutedUrlPresentation;
 
+- (instancetype)initWithDelegate:(id<FSQUrlRouterDelegate>)delegate NS_DESIGNATED_INITIALIZER;
+
 - (void)registerNativeSchemes:(NSArray<NSString *> *)schemes 
                   forRouteMap:(NSArray<NSArray *> *)map;
 - (void)registerUniversalLinkHosts:(NSArray<NSString *> *)hosts 
