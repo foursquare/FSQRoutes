@@ -86,7 +86,7 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
     for (NSString *component in pathComponents) {
         if (component.length > 0
             && ![component isEqualToString:@"/"]) {
-            [normalizedComponents addObject:component];
+            [normalizedComponents addObject:[self unescapedStringFromString:component]];
         }
     }
     return normalizedComponents.copy;
@@ -206,6 +206,16 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
     return !![self routeMapForUrl:url isNativeScheme:NULL];
 }
 
+- (NSString *)unescapedStringFromString:(NSString *)string {
+    NSMutableString *mutableString = [string mutableCopy];
+    [mutableString replaceOccurrencesOfString:@"+" 
+                                   withString:@" " 
+                                      options:NSLiteralSearch 
+                                        range:NSMakeRange(0, mutableString.length)];
+    
+    return [mutableString stringByRemovingPercentEncoding];
+}
+
 - (nullable NSDictionary<NSString *, NSString *> *)parametersForUrl:(NSURL *)url
                                                      ifMatchingPath:(NSArray<FSQRouteUrlToken *> *)tokens {
 
@@ -234,7 +244,7 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
         NSMutableDictionary<NSString *, NSString *> *mutableParameters = matchResult.mutableCopy;
         
         for (NSURLQueryItem *item in urlComponents.queryItems) {
-            mutableParameters[item.name] = item.value;
+            mutableParameters[[self unescapedStringFromString:item.name]] = [self unescapedStringFromString:item.value];
         }
         
         return mutableParameters.copy;
