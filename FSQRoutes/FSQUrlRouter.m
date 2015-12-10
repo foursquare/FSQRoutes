@@ -76,6 +76,8 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
         self.httpHostRouteMaps = [NSMutableDictionary dictionary];
     }
     
+    map = [self tokenizeRouteMap:map];
+    
     for (NSString *host in hosts) {
         self.httpHostRouteMaps[host] = map;
     }
