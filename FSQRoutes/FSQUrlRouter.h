@@ -148,7 +148,20 @@ typedef NS_ENUM(NSInteger, FSQUrlRoutingControl) {
 
 - (UIViewController *)urlRouter:(FSQUrlRouter *)urlRouter viewControllerToPresentRoutedUrlFrom:(FSQRouteContent *)routeContent;
 
-- (void)urlRouter:(FSQUrlRouter *)urlRouter routedUrlWillBePresented:(FSQRouteContent *)routeContent;
+/**
+ This delegate method will get called whenever a routed url is about to go on screen.
+ 
+ !! You MUST call the completion handler or your route will get dropped !!
+ 
+ You can use this callback to do any setup that is needed before the route is presented (eg dismiss existing modals)
+ 
+ @param urlRouter         The router about to present the route
+ @param routeContent      The route content that is going to be presented
+ @param completionHandler A completion handler that you must call when any work you need to do is finished. 
+ Execution of this block does the actual presentation asynchronously on the main thread.
+
+ */
+- (void)urlRouter:(FSQUrlRouter *)urlRouter routedUrlWillBePresented:(FSQRouteContent *)routeContent completionHandler:(void (^)())completionHandler;
 - (void)urlRouter:(FSQUrlRouter *)urlRouter routedUrlDidGetPresented:(FSQRouteContent *)routeContent;
 
 - (void)urlRouter:(FSQUrlRouter *)urlRouter failedToRouteUrl:(NSURL *)url notificationUserInfo:(nullable NSDictionary *)notificationUserInfo;

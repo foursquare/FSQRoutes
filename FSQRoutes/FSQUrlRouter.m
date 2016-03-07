@@ -780,9 +780,17 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
             UIViewController *viewController = [self.delegate urlRouter:self viewControllerToPresentRoutedUrlFrom:routeContent];
 
             if (viewController != nil) {
-                [self.delegate urlRouter:self routedUrlWillBePresented:routeContent];
-                [routeContent presentFromViewController:viewController];
-                [self.delegate urlRouter:self routedUrlDidGetPresented:routeContent];
+                void (^delegateCompletionBlock)() = ^() {
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        [routeContent presentFromViewController:viewController];
+                        [self.delegate urlRouter:self routedUrlDidGetPresented:routeContent];                        
+                    });
+                };
+                
+                [self.delegate urlRouter:self
+                routedUrlWillBePresented:routeContent
+                       completionHandler:delegateCompletionBlock];
+
             }
 
         }
