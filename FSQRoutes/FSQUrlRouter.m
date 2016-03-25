@@ -657,13 +657,13 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
                 NSArray<FSQRouteUrlToken *> *tokenizedPath = [pair firstObject];
                 FSQRouteContentGenerator *contentGenerator = [pair lastObject];
                 
-                if (tokenizedPath.count == 0
-                    || contentGenerator == nil) {
-                    return;
-                }
-                
                 NSDictionary<NSString *, NSString *> *parameters = [self parametersForUrl:url
                                                                            ifMatchingPath:tokenizedPath];
+                
+                if (parameters.count == 0 && // Important: a route can have parameters but no path, i.e. scheme://?foo=bar
+                    (tokenizedPath.count == 0 || contentGenerator == nil)) {
+                    return;
+                }
                 
                 if (parameters != nil) {
                     *stop = YES;
