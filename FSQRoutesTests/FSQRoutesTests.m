@@ -10,7 +10,7 @@
 
 #import "FSQRoutes.h"
 
-@interface FSQRoutesTests : XCTestCase
+@interface FSQRoutesTests : XCTestCase <FSQUrlRouterDelegate>
 @property (nonatomic, strong) FSQUrlRouter *urlRouter;
 @end
 
@@ -46,7 +46,7 @@ for (NSString *validateKey in validationDict) { \
 - (void)setUp {
     [super setUp];
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    self.urlRouter = [FSQUrlRouter new]; 
+    self.urlRouter = [[FSQUrlRouter alloc] initWithDelegate:self]; 
 }
 
 - (void)tearDown {
@@ -66,6 +66,8 @@ TEST_URLS_DONT_MATCH(ParameterMatching3, @"test://foo/bar", @"/foo/:param/bar")
 TEST_URLS_MATCH_AND_PARAMS_MATCH(ParameterMatching4, @"test://foo/bar?param2=a&param3=b", @"/foo/:param1", (@{@"param1" : @"bar",
                                                                                                               @"param2" : @"a",
                                                                                                               @"param3" : @"b",}))
+TEST_URLS_MATCH_AND_PARAMS_MATCH(ParameterMatching5, @"test://?param1=a&param2=b", @"/", (@{@"param1" : @"a",
+                                                                                            @"param2" : @"b"}))
 
 TEST_URLS_MATCH(SingleWildcardMatch1, @"test://foo/bar/baz", @"/*/*/baz")
 TEST_URLS_MATCH(SingleWildcardMatch2, @"test://foo/bar/baz", @"/foo/*/baz")
@@ -87,5 +89,47 @@ TEST_URLS_MATCH_AND_PARAMS_MATCH(UnlimitedWildcardMatch11, @"test://c/a/a/b", @"
 TEST_URLS_MATCH_AND_PARAMS_MATCH(UnlimitedWildcardMatch12, @"test://d/c/a/b/a/b", @"/**/:param/a/b/**", @{@"param" : @"c"});
 TEST_URLS_MATCH_AND_PARAMS_MATCH(UnlimitedWildcardMatch14, @"test://a/b/c/d", @"/**/:param", @{@"param" : @"d"});
 TEST_URLS_MATCH_AND_PARAMS_MATCH(UnlimitedWildcardMatch15, @"test://a", @"/**/:param", @{@"param" : @"a"});
+
+/**
+ Mandatory delegate callbacks that we don't actually use in tests
+ */
+
+- (FSQUrlRoutingControl)urlRouter:(FSQUrlRouter *)urlRouter 
+       shouldGenerateRouteContent:(FSQRouteContentGenerator *)routeContentGenerator 
+                      withUrlData:(FSQRouteUrlData *)urlData {
+    return FSQUrlRouterAllowRouting;
+}
+
+- (FSQUrlRoutingControl)urlRouter:(FSQUrlRouter *)urlRouter 
+               shouldPresentRoute:(FSQRouteContent *)routeContent {
+    return FSQUrlRouterAllowRouting;
+}
+
+- (UIViewController *)urlRouter:(FSQUrlRouter *)urlRouter viewControllerToPresentRoutedUrlFrom:(FSQRouteContent *)routeContent {
+    return nil;
+}
+
+- (void)urlRouter:(FSQUrlRouter *)urlRouter 
+routedUrlWillBePresented:(FSQRouteContent *)routeContent 
+completionHandler:(void (^)())completionHandler {
+    completionHandler();
+}
+
+- (void)urlRouter:(FSQUrlRouter *)urlRouter routedUrlDidGetPresented:(FSQRouteContent *)routeContent {
+    
+}
+
+- (void)urlRouter:(FSQUrlRouter *)urlRouter
+ failedToRouteUrl:(NSURL *)url 
+notificationUserInfo:(nullable NSDictionary *)notificationUserInfo {
+    
+}
+
+- (void)urlRouter:(FSQUrlRouter *)urlRouter
+failedToGenerateContent:(FSQRouteContentGenerator *)routeContentGenerator 
+          urlData:(FSQRouteUrlData *)urlData {
+    
+}
+
 
 @end
