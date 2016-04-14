@@ -16,15 +16,87 @@ NS_ASSUME_NONNULL_BEGIN
 @class FSQRouteUrlData;
 @protocol FSQUrlRouterDelegate;
 
+/**
+ The Url Router class takes in url objects that are sent to your app, matches them against a preset mapping that
+ you configure at launch time, and then takes the relevant action that corresponds to that url in the map
+ (usually pushing a new view controller).
+ 
+ Your app delegate should instantiate a url router, maintain a reference to it, and register the necessary url 
+ routing maps,  at startup. Then it can call `routeUrl:` for any url the app delegate receives to have it routed.
+ 
+ Url routing has four main classes:
+ * FSQUrlRouter - Does url to route string matching and delegate callbacks.
+ * FSQRouteContentGenerator - Generates a route content object based on url data input.
+ * FSQRouteContent - Represents an action to take for a route. Usually a view controller to be
+                     presented or pushed, but can be any action at all.
+ * FSQRouteUrlData - Wraps url, url parameters, and remote/local notification info into a single object.
+ 
+ */
 @interface FSQUrlRouter : NSObject
 
+/**
+ This delegate will get callbacks during routing and can be used to change behavior or update UI.
+ 
+ A delegate is required for proper routing. See the delegate protocol definition below for more information.
+ */
 @property (nonatomic, weak, nullable) id<FSQUrlRouterDelegate> delegate;
+
+/**
+ Routes can define custom presentation blocks to control how the view controllers they show are presented.
+ If they do not set one, this default presentation block is used.
+ 
+ All routes must have a presentation block in order to be presented. If you do not set a default one, all routes
+ in your route map must set one themselves. Any which do not will not be able to be presented if you do not set
+ this property.
+ */
 @property (nonatomic, copy, nullable) FSQRoutePresentation defaultRoutedUrlPresentation;
 
+/**
+ This is the designated initializer for the class.
+ 
+ @param delegate The url router delegate. A delegate is required for proper routing functionality.
+ 
+ @return A new instance of FSQUrlRouter.
+ */
 - (instancetype)initWithDelegate:(id<FSQUrlRouterDelegate>)delegate NS_DESIGNATED_INITIALIZER;
 
+/**
+ This method lets you register a route map for a specific set of scheme names for native urls.
+ 
+ Native urls are urls which are _not_ Universal Links (eg `yourappname://foo`).
+ 
+ The route maps are an array of arrays. The inner arrays are shoudl be two elements, the first of which is the 
+ url string to match against and the second should be a FSQRouteContentGenerator object.
+ 
+ E.g.
+ 
+ routeMap = @[ @[ @"/route/to/match" , [MyRoutingDelegate routeGeneratorForThisRoute] ] ,
+               @[ @"/another/route"  , [MyRoutingDelegate aDifferentGenerator] ],
+             ];
+ 
+ The route map has significant ordering. If more than one route string matches a given url, the one earlier in the
+ array is the one that will be the match.
+ 
+ See README.md for a description of valid route strings.
+ 
+ @param schemes The schemes you want to use this route map.
+ @param map     The route map to be used when receiving urls with the specified schemes.
+ 
+ @note Only one route map can be set for any one scheme. Setting a new one for the same scheme will remove the old one.
+ */
 - (void)registerNativeSchemes:(NSArray<NSString *> *)schemes 
                   forRouteMap:(NSArray<NSArray *> *)map;
+
+/**
+ This method lets you register a route map for a specific set of universal link hosts
+ 
+ Univeral Links are urls which are https schemes. The host part of the url is eg `example.com`
+ 
+ See `registerNativeSchemes:forRouteMap:` method description for a discussion of route maps.
+ 
+ @param hosts The hosts you want to use this route map.
+ @param map   The route map to be used when receiving universal link urls with the specified hosts.
+ */
 - (void)registerUniversalLinkHosts:(NSArray<NSString *> *)hosts 
                        forRouteMap:(NSArray<NSArray *> *)map;
 
@@ -131,25 +203,73 @@ notificationUserInfo:(nullable NSDictionary *)notificationUserInfo
                                      notificationUserInfo:(nullable NSDictionary *)notificationUserInfo;
 @end
 
+/**
+ This enum has the control options for delegate callbakcs about a routing-in-progress.
+ */
 typedef NS_ENUM(NSInteger, FSQUrlRoutingControl) {
+    /**
+     Cancel the specified routing and do nothing.
+     */
     FSQUrlRouterCancelRouting,
+    /**
+     Allow the specified routing to go through.
+     */
     FSQUrlRouterAllowRouting,
+    /**
+     Defer the specified routing. The router will attempt to route it again the next time `handleDeferredRoute`.
+     Only one route can be deferred at a time.
+     */
     FSQUrlRouterDeferRouting,
 };
 
 @protocol FSQUrlRouterDelegate <NSObject>
 
+/**
+ This method is called just before the router generates route content from a url.
+ 
+ You can return a control enum value here to change whether or not the route content is generated and the 
+ routing is performed.
+ 
+ If there is no delegate, route generation is allowed by default.
+ 
+ @param urlRouter             The url router about to generate route content.
+ @param routeContentGenerator The generator that is going to be used to generate the content.
+ @param urlData               The url data being used to generate the content.
+ 
+ @return Control value that determines whether the routing is allowed, cancelled, or deferred.
+ */
 - (FSQUrlRoutingControl)urlRouter:(FSQUrlRouter *)urlRouter 
        shouldGenerateRouteContent:(FSQRouteContentGenerator *)routeContentGenerator 
                       withUrlData:(FSQRouteUrlData *)urlData;
 
+/**
+ This method is called after the routed content has been generated, but before it has been presented.
+ 
+ You can return a control enum value here to change whether or not the route content is presented.
+ 
+ @param urlRouter    The url router about to present route content.
+ @param routeContent The content object being presented.
+ 
+ @return Control value that determines whether the routing is allowed, cancelled, or deferred. 
+ */
 - (FSQUrlRoutingControl)urlRouter:(FSQUrlRouter *)urlRouter 
                shouldPresentRoute:(FSQRouteContent *)routeContent;
 
+/**
+ This method is called when routed content is being presented. 
+ 
+ FSQRouteContent objects must have a view controller that they are presented from (so that they can push views 
+ onto the stack, etc.). 
+ 
+ @param urlRouter    The url router presenting route content.
+ @param routeContent The content object being presented.
+ 
+ @return The view controller the route content object should be presented from.
+ */
 - (UIViewController *)urlRouter:(FSQUrlRouter *)urlRouter viewControllerToPresentRoutedUrlFrom:(FSQRouteContent *)routeContent;
 
 /**
- This delegate method will get called whenever a routed url is about to go on screen.
+ This method is called whenever a routed url is about to be presented.
  
  !! You MUST call the completion handler or your route will get dropped !!
  
@@ -162,9 +282,31 @@ typedef NS_ENUM(NSInteger, FSQUrlRoutingControl) {
 
  */
 - (void)urlRouter:(FSQUrlRouter *)urlRouter routedUrlWillBePresented:(FSQRouteContent *)routeContent completionHandler:(void (^)())completionHandler;
+
+/**
+ This method is called after a routed url was presented.
+ 
+ @param urlRouter    The router that just prestented the route.
+ @param routeContent The content object that was presented.
+ */
 - (void)urlRouter:(FSQUrlRouter *)urlRouter routedUrlDidGetPresented:(FSQRouteContent *)routeContent;
 
+/**
+ This method is called if a url was not able to be routed because it did not match to any registered route map.
+ 
+ @param urlRouter            The router that attempted to route the url.
+ @param url                  The url that could not be routed.
+ @param notificationUserInfo The notification user info dictionary that could not be routed (if any).
+ */
 - (void)urlRouter:(FSQUrlRouter *)urlRouter failedToRouteUrl:(NSURL *)url notificationUserInfo:(nullable NSDictionary *)notificationUserInfo;
+
+/**
+ This method is called if a url was not able to be routed because the generator used returned a nil content object.
+ 
+ @param urlRouter             The router that attempted to route the url.
+ @param routeContentGenerator The generator object used.
+ @param urlData               The url data object that was passed to the generator.
+ */
 - (void)urlRouter:(FSQUrlRouter *)urlRouter failedToGenerateContent:(FSQRouteContentGenerator *)routeContentGenerator urlData:(FSQRouteUrlData *)urlData;
 
 @end
