@@ -230,8 +230,6 @@ typedef NS_ENUM(NSInteger, FSQUrlRoutingControl) {
  You can return a control enum value here to change whether or not the route content is generated and the 
  routing is performed.
  
- If there is no delegate, route generation is allowed by default.
- 
  @param urlRouter             The url router about to generate route content.
  @param routeContentGenerator The generator that is going to be used to generate the content.
  @param urlData               The url data being used to generate the content.
