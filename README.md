@@ -133,4 +133,4 @@ These methods allow you to cancel or defer routing at certain points during the 
 Contributors
 ============
 
-FSQRoutes was initially developed by Foursquare Labs for internal use. It was originally written by Brian Dorfman ([@bdorfman](https://twitter.com/bdorfman)).
+FSQRoutes was initially developed by Foursquare Labs for internal use. It was originally written by Brian Dorfman ([@bdorfman](https://twitter.com/bdorfman)) and is currently maintained by Sam Grossberg ([@samgro](https://github.com/samgro)).
