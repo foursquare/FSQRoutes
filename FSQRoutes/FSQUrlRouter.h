@@ -257,14 +257,16 @@ typedef NS_ENUM(NSInteger, FSQUrlRoutingControl) {
  This method is called when routed content is being presented. 
  
  FSQRouteContent objects must have a view controller that they are presented from (so that they can push views 
- onto the stack, etc.). 
+ onto the stack, etc.).
+ 
+ !! When urlRouter:shouldPresentRoute: returns FSQUrlRouterAllowRouting, this must NOT return nil.
  
  @param urlRouter    The url router presenting route content.
  @param routeContent The content object being presented.
  
  @return The view controller the route content object should be presented from.
  */
-- (UIViewController *)urlRouter:(FSQUrlRouter *)urlRouter viewControllerToPresentRoutedUrlFrom:(FSQRouteContent *)routeContent;
+- (nullable UIViewController *)urlRouter:(FSQUrlRouter *)urlRouter viewControllerToPresentRoutedUrlFrom:(FSQRouteContent *)routeContent;
 
 /**
  This method is called whenever a routed url is about to be presented.
