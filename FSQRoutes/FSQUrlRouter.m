@@ -17,7 +17,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FSQUrlRouter ()
 @property (nonatomic, strong, nullable) NSMutableDictionary<NSString *, NSArray<NSArray *> *> *nativeSchemeRouteMaps;
 @property (nonatomic, strong, nullable) NSMutableDictionary<NSString *, NSArray<NSArray *> *> *httpHostRouteMaps;
-@property (nonatomic, copy, nullable) NSString *defaultNativeScheme;
 
 @property (nonatomic, copy, nullable) void (^deferredRoute)(FSQUrlRouter *router);
 @end
