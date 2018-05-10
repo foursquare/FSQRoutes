@@ -776,7 +776,7 @@ typedef NS_ENUM(NSInteger, FSQRouteUrlTokenType) {
     
     switch (routingControl) {
         case FSQUrlRouterAllowRouting: {
-            void (^delegateCompletionBlock)() = ^() {
+            void (^delegateCompletionBlock)(void) = ^(void) {
                 dispatch_async(dispatch_get_main_queue(), ^{
                     UIViewController *presentingViewController = [self.delegate urlRouter:self
                                                      viewControllerToPresentRoutedUrlFrom:routeContent];
